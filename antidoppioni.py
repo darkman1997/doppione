@@ -408,29 +408,39 @@ def comandi(msg: dict, s: dict) -> None:
             tg("sendMessage", chat_id=chat_id,
                text="Regola attuale: {} video entro {} minuti.\nPer cambiarla: /regola 10 10".format(
                    s["regola"]["video"], s["regola"]["minuti"]))
+    elif cmd in ("/bannati", "/bloccati"):
+        b = s.get("bannati") or {}
+        if not b:
+            tg("sendMessage", chat_id=chat_id, text="Nessuno bloccato.")
+        else:
+            righe = ["{} — dal {}".format(k, v.get("il", "?")) for k, v in list(b.items())[:40]]
+            tg("sendMessage", chat_id=chat_id,
+               text="Bloccati:\n" + "\n".join(righe) +
+                    "\n\nPer riammettere: /riammetti id")
     elif cmd in ("/riammetti", "/sblocca"):
         pezzi = testo.split()
-        chi = (pezzi[1] if len(pezzi) > 1 else "").lstrip("@")
-        if not chi:
+        uid = None
+        if len(pezzi) > 1:
+            solo = pezzi[1].lstrip("@")
+            if solo.isdigit():
+                uid = int(solo)
+        if uid is None:
+            risposta = msg.get("reply_to_message") or {}
+            uid = (risposta.get("from") or {}).get("id")
+        if not uid:
             tg("sendMessage", chat_id=chat_id,
-               text="Per riammettere qualcuno: /riammetti user_id (oppure @nome).")
+               text="Scrivimi /riammetti seguito dall'id della persona, "
+                    "oppure rispondi a un suo messaggio con /riammetti.")
         else:
             try:
-                membro = tg("getChatMember", chat_id=chat_id, user_id=int(chi))
-                uid = (membro.get("result") or {}).get("user", {}).get("id") or int(chi)
-            except (urllib.error.HTTPError, ValueError):
-                uid = int(chi) if chi.isdigit() else 0
-            if not uid:
-                tg("sendMessage", chat_id=chat_id, text="Serve l'id numerico dell'utente.")
-            else:
-                try:
-                    tg("unbanChatMember", chat_id=chat_id, user_id=uid, only_if_banned="true")
-                    s.setdefault("bannati", {}).pop(str(uid), None)
-                    tg("sendMessage", chat_id=chat_id,
-                       text="Riammesso: ora puo rientrare.")
-                except urllib.error.HTTPError as e:
-                    tg("sendMessage", chat_id=chat_id,
-                       text="Non riesco a riammettere ({}): mi serve il permesso di bannare.".format(e.code))
+                tg("unbanChatMember", chat_id=chat_id, user_id=int(uid), only_if_banned="true")
+                (s.get("bannati") or {}).pop(str(uid), None)
+                salva(s)
+                tg("sendMessage", chat_id=chat_id,
+                   text="Riammesso: {} può rientrare.".format(uid))
+            except urllib.error.HTTPError as e:
+                tg("sendMessage", chat_id=chat_id,
+                   text="Non riesco a riammettere ({}): mi serve il permesso di bannare.".format(e.code))
     elif cmd in ("/recupera", "/ricopia"):
         avvia_recupero(msg, s)
     elif cmd in ("/annulla", "/stoprecupero"):
