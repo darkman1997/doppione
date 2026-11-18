@@ -38,7 +38,12 @@ jobs:
           git config user.email bot@users.noreply.github.com
           git add doppioni-stato.json
           git diff --staged --quiet || git commit -m "stato antidoppioni"
-          git push || true
+          for tentativo in 1 2 3 4; do
+            git fetch origin main
+            git rebase origin/main || { git rebase --abort; git checkout -- .; git reset --hard origin/main; }
+            git push && break
+            sleep 5
+          done
 
       - name: Prossimo giro (catena)
         if: always()
