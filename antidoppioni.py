@@ -177,25 +177,56 @@ def menzione(u: dict) -> str:
     return '<a href="tg://user?id={}">{}</a>'.format(u.get("id"), escape(nome_utente(u)))
 
 
+def _invia(testo: str, chat_id) -> None:
+    """Manda un messaggio e, se Telegram frena, aspetta e riprova una volta."""
+    for tentativo in (1, 2):
+        try:
+            tg("sendMessage", chat_id=chat_id, text=testo, parse_mode="HTML")
+            return
+        except urllib.error.HTTPError as e:
+            corpo = {}
+            try:
+                corpo = json.loads(e.read() or b"{}")
+            except Exception:
+                pass
+            if e.code == 429 and tentativo == 1:
+                attesa = int(((corpo.get("parameters") or {}).get("retry_after")) or 10)
+                attesa = max(2, min(attesa, 60))
+                print("benvenuto: aspetto {} s".format(attesa))
+                time.sleep(attesa)
+                continue
+            print("benvenuto non inviato: {} {}".format(e.code, corpo.get("description", "")))
+            return
+        except (urllib.error.URLError, OSError) as e:
+            print("benvenuto: rete ballerina ({})".format(e))
+            return
+
+
 def benvenuto(msg: dict, s: dict) -> None:
-    """Saluta i nuovi arrivati e avvia il conto alla rovescia."""
-    nuovi = msg.get("new_chat_members") or []
+    """Saluta i nuovi arrivati e avvia il conto alla rovescia (uno o tanti)."""
+    nuovi = [u for u in (msg.get("new_chat_members") or []) if not u.get("is_bot")]
     if not nuovi:
         return
     chat_id = (msg.get("chat") or {}).get("id")
     video = int(s["regola"]["video"])
     minuti = int(s["regola"]["minuti"])
     for u in nuovi:
-        if u.get("is_bot"):
-            continue
         s["in_attesa"][str(u.get("id"))] = {"t": time.time(), "video": 0, "chat": chat_id}
-        testo = ("Benvenuto {}! 🎬 Se non mandi {} video entro {} minuti ti caccio fuori!"
-                 .format(menzione(u), video, minuti))
-        try:
-            tg("sendMessage", chat_id=chat_id, text=testo, parse_mode="HTML")
-        except urllib.error.HTTPError as e:
-            print("benvenuto non inviato: {}".format(e.code))
-        print("benvenuto a {}".format(u.get("id")))
+
+    if len(nuovi) == 1:
+        _invia("Benvenuto {}! 🎬 Se non mandi {} video entro {} minuti ti caccio fuori!"
+               .format(menzione(nuovi[0]), video, minuti), chat_id)
+        print("benvenuto a {}".format(nuovi[0].get("id")))
+        return
+
+    # entrati in tanti: un messaggio ogni 20 persone, per non farsi bloccare da Telegram
+    for i in range(0, len(nuovi), 20):
+        gruppo = nuovi[i:i + 20]
+        nomi = ", ".join(menzione(u) for u in gruppo)
+        _invia("Benvenuti {}! 🎬 Se non mandate {} video entro {} minuti vi caccio fuori!"
+               .format(nomi, video, minuti), chat_id)
+        time.sleep(1)
+        print("benvenuto a {} nuovi".format(len(gruppo)))
 
 
 def conta_video(msg: dict, s: dict) -> None:
