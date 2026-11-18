@@ -160,6 +160,20 @@ def gestisci(msg: dict, s: dict) -> None:
         print("rete ballerina mentre cancellavo: {}".format(e))
 
 
+def ricorda_nome(msg: dict, s: dict) -> None:
+    """Tiene da parte id e nome utente di chi scrive, per poterlo riammettere dopo."""
+    u = msg.get("from") or {}
+    uid = u.get("id")
+    nome = u.get("username")
+    if not uid:
+        return
+    nomi = s.setdefault("nomi", {})
+    nomi[str(uid)] = (nome or "").lower()
+    if len(nomi) > 3000:
+        for k in list(nomi)[:500]:
+            nomi.pop(k, None)
+
+
 def annota_chat(msg: dict, s: dict) -> None:
     c = msg.get("chat") or {}
     if c.get("id"):
@@ -421,16 +435,21 @@ def comandi(msg: dict, s: dict) -> None:
         pezzi = testo.split()
         uid = None
         if len(pezzi) > 1:
-            solo = pezzi[1].lstrip("@")
+            solo = pezzi[1].lstrip("@").lower()
             if solo.isdigit():
                 uid = int(solo)
+            elif solo:
+                for k, v in (s.get("nomi") or {}).items():
+                    if v == solo:
+                        uid = int(k)
+                        break
         if uid is None:
             risposta = msg.get("reply_to_message") or {}
             uid = (risposta.get("from") or {}).get("id")
         if not uid:
             tg("sendMessage", chat_id=chat_id,
-               text="Scrivimi /riammetti seguito dall'id della persona, "
-                    "oppure rispondi a un suo messaggio con /riammetti.")
+               text="Scrivimi /riammetti come risposta a un suo messaggio, "
+                    "oppure /riammetti @nome o /riammetti id.")
         else:
             try:
                 tg("unbanChatMember", chat_id=chat_id, user_id=int(uid), only_if_banned="true")
@@ -493,6 +512,7 @@ def ciclo(s: dict, secondi: int) -> None:
             if msg:
                 try:
                     annota_chat(msg, s)
+                    ricorda_nome(msg, s)
                     benvenuto(msg, s)
                     conta_video(msg, s)
                     if s["attivo"]:
