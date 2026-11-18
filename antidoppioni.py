@@ -37,6 +37,8 @@ STATO = (os.environ.get("STATO") or "doppioni-stato.json").strip()
 SECONDI_ASCOLTO = int(os.environ.get("SECONDI_ASCOLTO") or 420)
 TG = "https://api.telegram.org/bot{}/{}"
 TTL_GIORNI = 60
+ARRETRATO_MAX = 600  # secondi: messaggi piu vecchi vengono ignorati (niente ondate di arretrato)
+PAUSA_INOLTRO = 3.0  # secondi tra una copia e l'altra (Telegram: max ~20 messaggi/minuto per gruppo)
 
 
 def tg(metodo: str, **campi) -> dict:
@@ -118,10 +120,15 @@ def chiavi(v: dict) -> list[str]:
     return k
 
 
+def e_arretrato(msg: dict) -> bool:
+    """True se il messaggio e piu vecchio della soglia: non va toccato."""
+    return time.time() - float(msg.get("date") or 0) > ARRETRATO_MAX
+
+
 def gestisci(msg: dict, s: dict) -> None:
     chat = msg.get("chat") or {}
     chat_id = chat.get("id")
-    if not chat_id:
+    if not chat_id or e_arretrato(msg):
         return
     v = video_del_messaggio(msg)
     if not v:
@@ -228,13 +235,30 @@ def inoltra(msg: dict, s: dict, origine) -> None:
             tg("copyMessage", chat_id=destinazione, from_chat_id=origine,
                message_id=msg.get("message_id"))
             print("inoltrato a {}".format(destinazione))
+            time.sleep(PAUSA_INOLTRO)
+            continue
         except urllib.error.HTTPError as e:
-            dettaglio = ""
+            corpo = {}
             try:
-                dettaglio = json.loads(e.read() or b"{}").get("description", "")
+                corpo = json.loads(e.read() or b"{}")
             except Exception:
                 pass
-            print("inoltro fallito verso {}: {} {}".format(destinazione, e.code, dettaglio))
+            if e.code == 429:
+                attesa = int(((corpo.get("parameters") or {}).get("retry_after")) or 10)
+                attesa = max(3, min(attesa, 60))
+                print("troppi inoltri, aspetto {} s".format(attesa))
+                time.sleep(attesa)
+                try:
+                    tg("copyMessage", chat_id=destinazione, from_chat_id=origine,
+                       message_id=msg.get("message_id"))
+                    print("inoltrato a {} (dopo attesa)".format(destinazione))
+                    time.sleep(PAUSA_INOLTRO)
+                    continue
+                except urllib.error.HTTPError as e2:
+                    print("inoltro fallito verso {}: {} (dopo attesa)".format(destinazione, e2.code))
+                    continue
+            print("inoltro fallito verso {}: {} {}".format(
+                destinazione, e.code, corpo.get("description", "")))
 
 
 def comandi(msg: dict, s: dict) -> None:
@@ -302,6 +326,15 @@ def comandi(msg: dict, s: dict) -> None:
 
 def ciclo(s: dict, secondi: int) -> None:
     fine = time.time() + secondi
+    if not s.get("ultimo_update"):
+        # primo avvio: salta tutto quello che si e accumulato, parti da adesso
+        try:
+            ris = tg("getUpdates", offset=-1, limit=1, timeout=0)
+            for upd in ris.get("result", []):
+                s["ultimo_update"] = upd["update_id"] + 1
+            print("arretrato saltato, riparto da update {}".format(s["ultimo_update"]))
+        except Exception as e:
+            print("salto arretrato non riuscito: {}".format(e))
     while time.time() < fine:
         try:
             ris = tg("getUpdates", offset=s["ultimo_update"] or None, timeout=20)
@@ -312,6 +345,9 @@ def ciclo(s: dict, secondi: int) -> None:
         for upd in ris.get("result", []):
             s["ultimo_update"] = upd["update_id"] + 1
             msg = upd.get("message") or upd.get("channel_post") or {}
+            if msg and e_arretrato(msg):
+                # messaggio vecchio (arretrato): non lo cancello, non lo inoltro, non do il benvenuto
+                continue
             if msg:
                 annota_chat(msg, s)
                 benvenuto(msg, s)
