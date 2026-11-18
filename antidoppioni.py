@@ -422,6 +422,11 @@ def comandi(msg: dict, s: dict) -> None:
             tg("sendMessage", chat_id=chat_id,
                text="Regola attuale: {} video entro {} minuti.\nPer cambiarla: /regola 10 10".format(
                    s["regola"]["video"], s["regola"]["minuti"]))
+    elif cmd in ("/foto", "/nofoto"):
+        s["cancella_foto"] = not s.get("cancella_foto", True)
+        salva(s)
+        tg("sendMessage", chat_id=chat_id,
+           text="Cancellazione foto: " + ("attiva ✅" if s["cancella_foto"] else "spenta ⏸"))
     elif cmd in ("/bannati", "/bloccati"):
         b = s.get("bannati") or {}
         if not b:
@@ -483,6 +488,39 @@ def comandi(msg: dict, s: dict) -> None:
         tg("sendMessage", chat_id=chat_id, text="Ora sono " + ("attivo ✅" if s["attivo"] else "spento ⏸"))
 
 
+def aggiorna_admin(s: dict) -> None:
+    """Ricorda chi sono gli amministratori di ogni gruppo (le loro foto non si toccano)."""
+    for chat in list((s.get("chats") or {}).keys()):
+        try:
+            ris = tg("getChatAdministrators", chat_id=int(chat))
+            s.setdefault("admin", {})[chat] = [
+                (m.get("user") or {}).get("id") for m in ris.get("result", [])
+                if (m.get("user") or {}).get("id")
+            ]
+        except Exception as e:
+            print("admin di {} non letti: {}".format(chat, e))
+
+
+def cancella_foto(msg: dict, s: dict) -> None:
+    """Cancella le foto mandate dai membri semplici (non dagli amministratori)."""
+    if not s.get("cancella_foto", True) or not msg.get("photo"):
+        return
+    chat_id = (msg.get("chat") or {}).get("id")
+    chi = (msg.get("from") or {}).get("id")
+    if not chat_id or not chi:
+        return
+    if chi in (s.get("admin", {}).get(str(chat_id)) or []):
+        return
+    try:
+        tg("deleteMessage", chat_id=chat_id, message_id=msg.get("message_id"))
+        s["foto_cancellate"] = s.get("foto_cancellate", 0) + 1
+        print("foto cancellata in {} (msg {})".format(chat_id, msg.get("message_id")))
+    except urllib.error.HTTPError as e:
+        print("foto non cancellata: {} {}".format(e.code, ""))
+    except (urllib.error.URLError, OSError) as e:
+        print("rete ballerina mentre cancellavo la foto: {}".format(e))
+
+
 def ciclo(s: dict, secondi: int) -> None:
     global _COPIATI_GIRO
     _COPIATI_GIRO = 0
@@ -496,6 +534,7 @@ def ciclo(s: dict, secondi: int) -> None:
             print("arretrato saltato, riparto da update {}".format(s["ultimo_update"]))
         except Exception as e:
             print("salto arretrato non riuscito: {}".format(e))
+    aggiorna_admin(s)
     while time.time() < fine:
         try:
             ris = tg("getUpdates", offset=s["ultimo_update"] or None, timeout=20)
@@ -513,6 +552,7 @@ def ciclo(s: dict, secondi: int) -> None:
                 try:
                     annota_chat(msg, s)
                     ricorda_nome(msg, s)
+                    cancella_foto(msg, s)
                     benvenuto(msg, s)
                     conta_video(msg, s)
                     if s["attivo"]:
