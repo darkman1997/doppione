@@ -1,0 +1,53 @@
+name: Anti-doppioni
+
+# Resta in ascolto sul gruppo e cancella i video doppioni (tiene il primo).
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/5 * * * *"
+
+concurrency:
+  group: antidoppioni
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  ascolta:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Ascolta il gruppo
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.DOPPIONI_TELEGRAM_TOKEN }}
+          SECONDI_ASCOLTO: "420"
+        run: python antidoppioni.py --loop
+
+      - name: Salva lo stato
+        if: always()
+        run: |
+          git config user.name bot
+          git config user.email bot@users.noreply.github.com
+          git add doppioni-stato.json
+          git diff --staged --quiet || git commit -m "stato antidoppioni"
+          git push || true
+
+      - name: Prossimo giro (catena)
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          sleep 20
+          curl -s -o /dev/null -w 'next=%{http_code}\n' -X POST \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -d '{"ref":"main"}' \
+            "${{ github.api_url }}/repos/${{ github.repository }}/actions/workflows/antidoppioni.yml/dispatches" || true
