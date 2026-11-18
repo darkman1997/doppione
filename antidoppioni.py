@@ -252,9 +252,7 @@ def controlla_scadenze(s: dict) -> None:
         try:
             tg("banChatMember", chat_id=chat_id, user_id=int(chi))
             tg("unbanChatMember", chat_id=chat_id, user_id=int(chi), only_if_banned="true")
-            tg("sendMessage", chat_id=chat_id,
-               text="Niente video in {} minuti: fuori! 👋".format(minuti))
-            print("cacciato {}".format(chi))
+            print("cacciato {} (senza avviso in gruppo)".format(chi))
         except urllib.error.HTTPError as e:
             print("non riesco a cacciare {}: {}".format(chi, e.code))
         s["in_attesa"].pop(chi, None)
