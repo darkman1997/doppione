@@ -156,6 +156,8 @@ def gestisci(msg: dict, s: dict) -> None:
         except Exception:
             pass
         print("non riesco a cancellare: {} {}".format(e.code, dettaglio))
+    except (urllib.error.URLError, OSError) as e:
+        print("rete ballerina mentre cancellavo: {}".format(e))
 
 
 def annota_chat(msg: dict, s: dict) -> None:
@@ -260,6 +262,9 @@ def inoltra(msg: dict, s: dict, origine) -> None:
                     continue
             print("inoltro fallito verso {}: {} {}".format(
                 destinazione, e.code, corpo.get("description", "")))
+        except (urllib.error.URLError, OSError) as e:
+            print("rete ballerina mentre inoltravo: {}".format(e))
+            time.sleep(5)
 
 
 _COPIATI_GIRO = 0
@@ -424,12 +429,15 @@ def ciclo(s: dict, secondi: int) -> None:
                 # messaggio vecchio (arretrato): non lo cancello, non lo inoltro, non do il benvenuto
                 continue
             if msg:
-                annota_chat(msg, s)
-                benvenuto(msg, s)
-                conta_video(msg, s)
-                if s["attivo"]:
-                    gestisci(msg, s)
-                comandi(msg, s)
+                try:
+                    annota_chat(msg, s)
+                    benvenuto(msg, s)
+                    conta_video(msg, s)
+                    if s["attivo"]:
+                        gestisci(msg, s)
+                    comandi(msg, s)
+                except Exception as e:  # un messaggio non deve fermare l'ascolto
+                    print("salto un messaggio: {}".format(e))
         controlla_scadenze(s)
         recupero(s)
         salva(s)
