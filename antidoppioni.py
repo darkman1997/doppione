@@ -38,6 +38,7 @@ SECONDI_ASCOLTO = int(os.environ.get("SECONDI_ASCOLTO") or 420)
 TG = "https://api.telegram.org/bot{}/{}"
 TTL_GIORNI = 60
 ARRETRATO_MAX = 600  # secondi: messaggi piu vecchi vengono ignorati (niente ondate di arretrato)
+RECUPERO_MAX_GIRO = 90  # quanti video vecchi ricopiare al massimo in un giro
 PAUSA_INOLTRO = 3.0  # secondi tra una copia e l'altra (Telegram: max ~20 messaggi/minuto per gruppo)
 
 
@@ -261,6 +262,62 @@ def inoltra(msg: dict, s: dict, origine) -> None:
                 destinazione, e.code, corpo.get("description", "")))
 
 
+_COPIATI_GIRO = 0
+
+
+def avvia_recupero(msg: dict, s: dict) -> None:
+    """Mette in coda i video gia visti in questa chat per ricopiarli nelle destinazioni."""
+    chat_id = (msg.get("chat") or {}).get("id")
+    ids = sorted({int(v["m"]) for v in s["visti"].values()
+                  if v.get("c") == chat_id and isinstance(v.get("m"), int)})
+    if not ids:
+        tg("sendMessage", chat_id=chat_id,
+           text="Non ho video in memoria per questa chat: non posso recuperarli.")
+        return
+    s["recupero"] = {"chat": chat_id, "coda": ids, "pos": 0, "copiati": 0}
+    salva(s)
+    tg("sendMessage", chat_id=chat_id,
+       text="Recupero avviato: {} video da ricopiare, a piccoli blocchi. "
+            "Scrivi /annulla per fermarmi.".format(len(ids)))
+
+
+def recupero(s: dict) -> None:
+    """Ricopia a blocchi i video in coda (rispetta i limiti di Telegram)."""
+    global _COPIATI_GIRO
+    r = s.get("recupero")
+    if not r:
+        return
+    destinazioni = list(s.get("inoltra_a") or [])
+    if not destinazioni:
+        return
+    coda = r.get("coda") or []
+    while r["pos"] < len(coda) and _COPIATI_GIRO < RECUPERO_MAX_GIRO:
+        mid = coda[r["pos"]]
+        for dest in destinazioni:
+            try:
+                tg("copyMessage", chat_id=dest, from_chat_id=r["chat"], message_id=mid)
+                r["copiati"] = r.get("copiati", 0) + 1
+                _COPIATI_GIRO += 1
+                print("recuperato msg {} -> {}".format(mid, dest))
+                time.sleep(PAUSA_INOLTRO)
+            except urllib.error.HTTPError as e:
+                corpo = {}
+                try:
+                    corpo = json.loads(e.read() or b"{}")
+                except Exception:
+                    pass
+                if e.code == 429:
+                    print("recupero: troppi invii, riprendo al prossimo giro")
+                    salva(s)
+                    return
+                print("recupero: salto msg {} ({})".format(mid, e.code))
+        r["pos"] += 1
+    if r["pos"] >= len(coda):
+        print("recupero finito: {} video".format(r.get("copiati", 0)))
+        s.pop("recupero", None)
+    salva(s)
+
+
 def comandi(msg: dict, s: dict) -> None:
     testo = (msg.get("text") or "").strip()
     if not testo.startswith("/"):
@@ -273,6 +330,8 @@ def comandi(msg: dict, s: dict) -> None:
                  "/stato — quanti doppioni ho cancellato\n"
                  "/inoltra — copia qui i video nuovi degli altri gruppi\n"
                  "/stopinoltra — smetti di copiarli qui\n"
+                 "/recupera — ricopia i video gia visti in questa chat\n"
+                 "/annulla — ferma il recupero\n"
                  "/attiva e /disattiva — accendo o spengo\n\n"
                  "Mi servono i permessi di amministratore con \'elimina messaggi\'."),
            parse_mode="HTML")
@@ -310,6 +369,15 @@ def comandi(msg: dict, s: dict) -> None:
             tg("sendMessage", chat_id=chat_id,
                text="Regola attuale: {} video entro {} minuti.\nPer cambiarla: /regola 10 10".format(
                    s["regola"]["video"], s["regola"]["minuti"]))
+    elif cmd in ("/recupera", "/ricopia"):
+        avvia_recupero(msg, s)
+    elif cmd in ("/annulla", "/stoprecupero"):
+        if s.get("recupero"):
+            s.pop("recupero", None)
+            salva(s)
+            tg("sendMessage", chat_id=chat_id, text="Recupero fermato.")
+        else:
+            tg("sendMessage", chat_id=chat_id, text="Nessun recupero in corso.")
     elif cmd == "/inoltra":
         if chat_id not in s["inoltra_a"]:
             s["inoltra_a"].append(chat_id)
@@ -325,6 +393,8 @@ def comandi(msg: dict, s: dict) -> None:
 
 
 def ciclo(s: dict, secondi: int) -> None:
+    global _COPIATI_GIRO
+    _COPIATI_GIRO = 0
     fine = time.time() + secondi
     if not s.get("ultimo_update"):
         # primo avvio: salta tutto quello che si e accumulato, parti da adesso
@@ -356,6 +426,7 @@ def ciclo(s: dict, secondi: int) -> None:
                     gestisci(msg, s)
                 comandi(msg, s)
         controlla_scadenze(s)
+        recupero(s)
         salva(s)
         time.sleep(1)
 
@@ -376,6 +447,7 @@ def main(argv: list[str]) -> int:
     if a.pulisci:
         s["visti"] = {}
         controlla_scadenze(s)
+        recupero(s)
         salva(s)
         time.sleep(1)
         print("memoria svuotata")
