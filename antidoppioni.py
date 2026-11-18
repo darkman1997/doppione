@@ -126,6 +126,24 @@ def e_arretrato(msg: dict) -> bool:
     return time.time() - float(msg.get("date") or 0) > ARRETRATO_MAX
 
 
+def avvisa_doppione(msg: dict, s: dict, chat_id) -> None:
+    """Se chi lo ha mandato sta facendo il conto dei 10 video, lo avvisa e scala il conteggio."""
+    u = msg.get("from") or {}
+    chi = str(u.get("id") or "")
+    if chi not in s.get("in_attesa", {}):
+        return
+    dati = s["in_attesa"][chi]
+    dati["video"] = max(0, int(dati.get("video", 0)) - 1)
+    mancano = max(1, int(s["regola"]["video"]) - int(dati.get("video", 0)))
+    testo = ("{} il video era doppione e l'ho eliminato: te ne mancano ancora {}."
+             .format(menzione(u), mancano))
+    if mancano == 1:
+        testo = ("{} il video era doppione e l'ho eliminato: devi mandare ancora 1 video."
+                 .format(menzione(u)))
+    _invia(testo, chat_id)
+    print("avvisato {} del doppione".format(chi))
+
+
 def gestisci(msg: dict, s: dict) -> None:
     chat = msg.get("chat") or {}
     chat_id = chat.get("id")
@@ -149,6 +167,7 @@ def gestisci(msg: dict, s: dict) -> None:
         tg("deleteMessage", chat_id=chat_id, message_id=msg.get("message_id"))
         s["cancellati"] += 1
         print("doppione cancellato in chat {} (msg {})".format(chat_id, msg.get("message_id")))
+        avvisa_doppione(msg, s, chat_id)
     except urllib.error.HTTPError as e:
         dettaglio = ""
         try:
