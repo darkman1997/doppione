@@ -251,8 +251,8 @@ def controlla_scadenze(s: dict) -> None:
         chat_id = dati.get("chat")
         try:
             tg("banChatMember", chat_id=chat_id, user_id=int(chi))
-            tg("unbanChatMember", chat_id=chat_id, user_id=int(chi), only_if_banned="true")
-            print("cacciato {} (senza avviso in gruppo)".format(chi))
+            s.setdefault("bannati", {})[chi] = {"il": date.today().isoformat(), "chat": chat_id}
+            print("cacciato {} e bloccato: non puo rientrare".format(chi))
         except urllib.error.HTTPError as e:
             print("non riesco a cacciare {}: {}".format(chi, e.code))
         s["in_attesa"].pop(chi, None)
@@ -408,6 +408,29 @@ def comandi(msg: dict, s: dict) -> None:
             tg("sendMessage", chat_id=chat_id,
                text="Regola attuale: {} video entro {} minuti.\nPer cambiarla: /regola 10 10".format(
                    s["regola"]["video"], s["regola"]["minuti"]))
+    elif cmd in ("/riammetti", "/sblocca"):
+        pezzi = testo.split()
+        chi = (pezzi[1] if len(pezzi) > 1 else "").lstrip("@")
+        if not chi:
+            tg("sendMessage", chat_id=chat_id,
+               text="Per riammettere qualcuno: /riammetti user_id (oppure @nome).")
+        else:
+            try:
+                membro = tg("getChatMember", chat_id=chat_id, user_id=int(chi))
+                uid = (membro.get("result") or {}).get("user", {}).get("id") or int(chi)
+            except (urllib.error.HTTPError, ValueError):
+                uid = int(chi) if chi.isdigit() else 0
+            if not uid:
+                tg("sendMessage", chat_id=chat_id, text="Serve l'id numerico dell'utente.")
+            else:
+                try:
+                    tg("unbanChatMember", chat_id=chat_id, user_id=uid, only_if_banned="true")
+                    s.setdefault("bannati", {}).pop(str(uid), None)
+                    tg("sendMessage", chat_id=chat_id,
+                       text="Riammesso: ora puo rientrare.")
+                except urllib.error.HTTPError as e:
+                    tg("sendMessage", chat_id=chat_id,
+                       text="Non riesco a riammettere ({}): mi serve il permesso di bannare.".format(e.code))
     elif cmd in ("/recupera", "/ricopia"):
         avvia_recupero(msg, s)
     elif cmd in ("/annulla", "/stoprecupero"):
