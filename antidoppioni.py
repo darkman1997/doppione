@@ -263,6 +263,7 @@ def inoltra(msg: dict, s: dict, origine) -> None:
 
 
 _COPIATI_GIRO = 0
+_RIPRESA = 0.0  # quando il recupero puo riprovare dopo un 429
 
 
 def avvia_recupero(msg: dict, s: dict) -> None:
@@ -283,7 +284,9 @@ def avvia_recupero(msg: dict, s: dict) -> None:
 
 def recupero(s: dict) -> None:
     """Ricopia a blocchi i video in coda (rispetta i limiti di Telegram)."""
-    global _COPIATI_GIRO
+    global _COPIATI_GIRO, _RIPRESA
+    if time.time() < _RIPRESA:
+        return
     r = s.get("recupero")
     if not r:
         return
@@ -307,7 +310,9 @@ def recupero(s: dict) -> None:
                 except Exception:
                     pass
                 if e.code == 429:
-                    print("recupero: troppi invii, riprendo al prossimo giro")
+                    attesa = int(((corpo.get("parameters") or {}).get("retry_after")) or 20)
+                    _RIPRESA = time.time() + max(5, min(attesa, 120))
+                    print("recupero: troppi invii, riprendo tra {} s".format(attesa))
                     salva(s)
                     return
                 print("recupero: salto msg {} ({})".format(mid, e.code))
