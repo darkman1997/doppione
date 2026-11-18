@@ -1,1 +1,44 @@
-{"visti": {}, "ultimo_update": 0, "cancellati": 0, "attivo": true, "inoltra_a": [], "in_attesa": {}, "regola": {"video": 10, "minuti": 10}, "chats": {}}
+{
+ "attivo": true,
+ "cancellati": 5,
+ "chats": {
+  "-1003933737714": {
+   "tipo": "supergroup",
+   "titolo": "Porno"
+  }
+ },
+ "in_attesa": {},
+ "inoltra_a": [],
+ "regola": {
+  "minuti": 10,
+  "video": 10
+ },
+ "ultimo_update": 170685942,
+ "visti": {
+  "u:AgAD7SIAAqN5IFE": {
+   "c": -1003933737714,
+   "d": "2026-11-18",
+   "m": 7
+  },
+  "u:AgAD7iIAAqN5IFE": {
+   "c": -1003933737714,
+   "d": "2026-11-18",
+   "m": 8
+  },
+  "u:AgAD7yIAAqN5IFE": {
+   "c": -1003933737714,
+   "d": "2026-11-18",
+   "m": 9
+  },
+  "u:AgAD8CIAAqN5IFE": {
+   "c": -1003933737714,
+   "d": "2026-11-18",
+   "m": 10
+  },
+  "u:AgAD8SIAAqN5IFE": {
+   "c": -1003933737714,
+   "d": "2026-11-18",
+   "m": 11
+  }
+ }
+}
