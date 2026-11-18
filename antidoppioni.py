@@ -1,0 +1,353 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+antidoppioni.py — Bot Telegram che cancella i video doppioni in un gruppo.
+
+Regola: tiene il primo che arriva, cancella quelli uguali che arrivano dopo.
+Riconosce il doppione da:
+  1. file_unique_id (stesso file, anche inoltrato);
+  2. nome file + dimensione + durata (stessa cosa ricaricata);
+Solo libreria standard.
+
+Variabili d'ambiente
+  TELEGRAM_TOKEN   obbligatoria  token del bot
+  STATO            facoltativa   default doppioni-stato.json
+  SECONDI_ASCOLTO  facoltativa   default 420 (quanto resta in ascolto prima di uscire)
+
+Uso
+  python antidoppioni.py --loop     ascolta per SECONDI_ASCOLTO secondi e processa
+  python antidoppioni.py --stato    stampa il riepilogo
+  python antidoppioni.py --pulisci  dimentica i doppioni in memoria (non cancella nulla)
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import sys
+import time
+import urllib.error
+import urllib.parse
+import urllib.request
+from datetime import date, datetime
+
+TELEGRAM_TOKEN = (os.environ.get("TELEGRAM_TOKEN") or "").strip()
+STATO = (os.environ.get("STATO") or "doppioni-stato.json").strip()
+SECONDI_ASCOLTO = int(os.environ.get("SECONDI_ASCOLTO") or 420)
+TG = "https://api.telegram.org/bot{}/{}"
+TTL_GIORNI = 60
+
+
+def tg(metodo: str, **campi) -> dict:
+    if not TELEGRAM_TOKEN:
+        raise RuntimeError("TELEGRAM_TOKEN mancante")
+    dati = urllib.parse.urlencode({k: v for k, v in campi.items() if v is not None}).encode()
+    req = urllib.request.Request(TG.format(TELEGRAM_TOKEN, metodo), data=dati)
+    with urllib.request.urlopen(req, timeout=40) as r:
+        return json.loads(r.read().decode("utf-8", "replace"))
+
+
+def carica() -> dict:
+    if not os.path.exists(STATO):
+        return {"visti": {}, "ultimo_update": 0, "cancellati": 0, "attivo": True}
+    try:
+        with open(STATO, encoding="utf-8") as f:
+            s = json.load(f)
+    except (OSError, json.JSONDecodeError):
+        return {"visti": {}, "ultimo_update": 0, "cancellati": 0, "attivo": True}
+    s.setdefault("visti", {})
+    s.setdefault("ultimo_update", 0)
+    s.setdefault("cancellati", 0)
+    s.setdefault("attivo", True)
+    s.setdefault("inoltra_a", [])
+    s.setdefault("in_attesa", {})
+    s.setdefault("regola", {"video": 10, "minuti": 10})
+    s.setdefault("chats", {})
+    return s
+
+
+def salva(s: dict) -> None:
+    limite = date.today().toordinal() - TTL_GIORNI
+    for k in list(s["visti"]):
+        try:
+            if date.fromisoformat(s["visti"][k]["d"]).toordinal() < limite:
+                s["visti"].pop(k, None)
+        except (KeyError, ValueError):
+            s["visti"].pop(k, None)
+    with open(STATO, "w", encoding="utf-8") as f:
+        json.dump(s, f, ensure_ascii=False, indent=1, sort_keys=True)
+
+
+# --------------------------------------------------------------------------
+# video
+# --------------------------------------------------------------------------
+
+def video_del_messaggio(msg: dict) -> dict | None:
+    """Restituisce i dati del video contenuto nel messaggio, se c'è."""
+    for campo in ("video", "animation", "video_note"):
+        if msg.get(campo):
+            v = msg[campo]
+            return {
+                "unico": v.get("file_unique_id") or "",
+                "nome": v.get("file_name") or msg.get("caption") or "",
+                "dim": v.get("file_size") or v.get("file_size_bytes") or 0,
+                "durata": v.get("duration") or 0,
+            }
+    doc = msg.get("document") or {}
+    mime = (doc.get("mime_type") or "").lower()
+    if doc and (mime.startswith("video/") or (doc.get("file_name") or "").lower().endswith(
+            (".mp4", ".mkv", ".avi", ".mov", ".webm", ".m4v"))):
+        return {
+            "unico": doc.get("file_unique_id") or "",
+            "nome": doc.get("file_name") or "",
+            "dim": doc.get("file_size") or 0,
+            "durata": 0,
+        }
+    return None
+
+
+def chiavi(v: dict) -> list[str]:
+    """Chiavi con cui riconoscere lo stesso video."""
+    k = []
+    if v["unico"]:
+        k.append("u:" + v["unico"])
+    nome = "".join(ch for ch in (v["nome"] or "").lower() if ch.isalnum())
+    if nome and v["dim"]:
+        k.append("n:{}|{}|{}".format(nome, v["dim"], v["durata"]))
+    return k
+
+
+def gestisci(msg: dict, s: dict) -> None:
+    chat = msg.get("chat") or {}
+    chat_id = chat.get("id")
+    if not chat_id:
+        return
+    v = video_del_messaggio(msg)
+    if not v:
+        return
+    ks = chiavi(v)
+    if not ks:
+        return
+    doppio = next((k for k in ks if k in s["visti"]), None)
+    if doppio is None:
+        # primo esemplare: lo tengo in memoria e lo inoltro dove richiesto
+        for k in ks:
+            s["visti"][k] = {"d": date.today().isoformat(), "m": msg.get("message_id"), "c": chat_id}
+        inoltra(msg, s, chat_id)
+        return
+    # doppione: cancello questo messaggio e tengo il primo
+    try:
+        tg("deleteMessage", chat_id=chat_id, message_id=msg.get("message_id"))
+        s["cancellati"] += 1
+        print("doppione cancellato in chat {} (msg {})".format(chat_id, msg.get("message_id")))
+    except urllib.error.HTTPError as e:
+        dettaglio = ""
+        try:
+            dettaglio = json.loads(e.read() or b"{}").get("description", "")
+        except Exception:
+            pass
+        print("non riesco a cancellare: {} {}".format(e.code, dettaglio))
+
+
+def annota_chat(msg: dict, s: dict) -> None:
+    c = msg.get("chat") or {}
+    if c.get("id"):
+        s["chats"][str(c["id"])] = {"titolo": c.get("title") or c.get("first_name") or "", "tipo": c.get("type")}
+
+
+def nome_utente(u: dict) -> str:
+    nome = u.get("first_name") or u.get("username") or "amico"
+    return nome
+
+
+def menzione(u: dict) -> str:
+    """Tag che funziona anche se l'utente non ha username."""
+    from html import escape
+    return '<a href="tg://user?id={}">{}</a>'.format(u.get("id"), escape(nome_utente(u)))
+
+
+def benvenuto(msg: dict, s: dict) -> None:
+    """Saluta i nuovi arrivati e avvia il conto alla rovescia."""
+    nuovi = msg.get("new_chat_members") or []
+    if not nuovi:
+        return
+    chat_id = (msg.get("chat") or {}).get("id")
+    video = int(s["regola"]["video"])
+    minuti = int(s["regola"]["minuti"])
+    for u in nuovi:
+        if u.get("is_bot"):
+            continue
+        s["in_attesa"][str(u.get("id"))] = {"t": time.time(), "video": 0, "chat": chat_id}
+        testo = ("Benvenuto {}! 🎬 Se non mandi {} video entro {} minuti ti caccio fuori!"
+                 .format(menzione(u), video, minuti))
+        try:
+            tg("sendMessage", chat_id=chat_id, text=testo, parse_mode="HTML")
+        except urllib.error.HTTPError as e:
+            print("benvenuto non inviato: {}".format(e.code))
+        print("benvenuto a {}".format(u.get("id")))
+
+
+def conta_video(msg: dict, s: dict) -> None:
+    chi = str((msg.get("from") or {}).get("id") or "")
+    if chi not in s["in_attesa"]:
+        return
+    if video_del_messaggio(msg):
+        s["in_attesa"][chi]["video"] = s["in_attesa"][chi].get("video", 0) + 1
+
+
+def controlla_scadenze(s: dict) -> None:
+    """Caccia chi non ha mandato abbastanza video nel tempo previsto."""
+    adesso = time.time()
+    video = int(s["regola"]["video"])
+    minuti = int(s["regola"]["minuti"])
+    for chi, dati in list(s["in_attesa"].items()):
+        if adesso - float(dati.get("t", 0)) < minuti * 60:
+            continue
+        if int(dati.get("video", 0)) >= video:
+            s["in_attesa"].pop(chi, None)
+            continue
+        chat_id = dati.get("chat")
+        try:
+            tg("banChatMember", chat_id=chat_id, user_id=int(chi))
+            tg("unbanChatMember", chat_id=chat_id, user_id=int(chi), only_if_banned="true")
+            tg("sendMessage", chat_id=chat_id,
+               text="Niente video in {} minuti: fuori! 👋".format(minuti))
+            print("cacciato {}".format(chi))
+        except urllib.error.HTTPError as e:
+            print("non riesco a cacciare {}: {}".format(chi, e.code))
+        s["in_attesa"].pop(chi, None)
+
+
+def inoltra(msg: dict, s: dict, origine) -> None:
+    """Copia il video nei gruppi indicati (senza ricaricare il file)."""
+    for destinazione in list(s.get("inoltra_a") or []):
+        if str(destinazione) == str(origine):
+            continue
+        try:
+            tg("copyMessage", chat_id=destinazione, from_chat_id=origine,
+               message_id=msg.get("message_id"))
+            print("inoltrato a {}".format(destinazione))
+        except urllib.error.HTTPError as e:
+            dettaglio = ""
+            try:
+                dettaglio = json.loads(e.read() or b"{}").get("description", "")
+            except Exception:
+                pass
+            print("inoltro fallito verso {}: {} {}".format(destinazione, e.code, dettaglio))
+
+
+def comandi(msg: dict, s: dict) -> None:
+    testo = (msg.get("text") or "").strip()
+    if not testo.startswith("/"):
+        return
+    chat_id = (msg.get("chat") or {}).get("id")
+    cmd = testo.split()[0].split("@")[0].lower()
+    if cmd in ("/start", "/aiuto", "/help"):
+        tg("sendMessage", chat_id=chat_id,
+           text=("<b>Anti-doppioni</b>\nTengo il primo video che arriva e cancello le copie.\n\n"
+                 "/stato — quanti doppioni ho cancellato\n"
+                 "/inoltra — copia qui i video nuovi degli altri gruppi\n"
+                 "/stopinoltra — smetti di copiarli qui\n"
+                 "/attiva e /disattiva — accendo o spengo\n\n"
+                 "Mi servono i permessi di amministratore con \'elimina messaggi\'."),
+           parse_mode="HTML")
+    elif cmd == "/stato":
+        tg("sendMessage", chat_id=chat_id,
+           text="Doppioni cancellati: {}\nVideo in memoria: {}\nAttivo: {}\nGruppi in cui inoltro: {}".format(
+               s["cancellati"], len(s["visti"]), "sì" if s["attivo"] else "no",
+               len(s.get("inoltra_a") or [])))
+    elif cmd in ("/qui", "/chat"):
+        c = msg.get("chat") or {}
+        info = tg("getChat", chat_id=c.get("id"))
+        me = tg("getMe")
+        mio = (me.get("result") or {}).get("id")
+        stato = ""
+        try:
+            membro = tg("getChatMember", chat_id=c.get("id"), user_id=mio)
+            r = (membro.get("result") or {})
+            stato = r.get("status") or ""
+            if stato == "administrator":
+                stato += " (cancella: {}; banna: {})".format(
+                    "sì" if r.get("can_delete_messages") else "no",
+                    "sì" if r.get("can_restrict_members") else "no")
+        except urllib.error.HTTPError as e:
+            stato = "non riesco a leggere i miei permessi ({})".format(e.code)
+        titolo = (info.get("result") or {}).get("title") or ""
+        tg("sendMessage", chat_id=c.get("id"),
+           text="Chat: {}\nTitolo: {}\nIo sono: {}".format(c.get("id"), titolo, stato))
+    elif cmd in ("/regola", "/regole"):
+        pezzi = testo.split()
+        if len(pezzi) >= 3 and pezzi[1].isdigit() and pezzi[2].isdigit():
+            s["regola"] = {"video": int(pezzi[1]), "minuti": int(pezzi[2])}
+            tg("sendMessage", chat_id=chat_id,
+               text="Regola aggiornata: {} video entro {} minuti.".format(pezzi[1], pezzi[2]))
+        else:
+            tg("sendMessage", chat_id=chat_id,
+               text="Regola attuale: {} video entro {} minuti.\nPer cambiarla: /regola 10 10".format(
+                   s["regola"]["video"], s["regola"]["minuti"]))
+    elif cmd == "/inoltra":
+        if chat_id not in s["inoltra_a"]:
+            s["inoltra_a"].append(chat_id)
+        tg("sendMessage", chat_id=chat_id,
+           text="Da qui in poi copio qui i video nuovi che arrivano negli altri gruppi ✅")
+    elif cmd in ("/stopinoltra", "/noninoltrare"):
+        if chat_id in s["inoltra_a"]:
+            s["inoltra_a"].remove(chat_id)
+        tg("sendMessage", chat_id=chat_id, text="Va bene, non ti copio più niente qui.")
+    elif cmd in ("/attiva", "/disattiva"):
+        s["attivo"] = cmd == "/attiva"
+        tg("sendMessage", chat_id=chat_id, text="Ora sono " + ("attivo ✅" if s["attivo"] else "spento ⏸"))
+
+
+def ciclo(s: dict, secondi: int) -> None:
+    fine = time.time() + secondi
+    while time.time() < fine:
+        try:
+            ris = tg("getUpdates", offset=s["ultimo_update"] or None, timeout=20)
+        except (urllib.error.URLError, RuntimeError) as e:
+            print("getUpdates: {}".format(e))
+            time.sleep(5)
+            continue
+        for upd in ris.get("result", []):
+            s["ultimo_update"] = upd["update_id"] + 1
+            msg = upd.get("message") or upd.get("channel_post") or {}
+            if msg:
+                annota_chat(msg, s)
+                benvenuto(msg, s)
+                conta_video(msg, s)
+                if s["attivo"]:
+                    gestisci(msg, s)
+                comandi(msg, s)
+        controlla_scadenze(s)
+        salva(s)
+        time.sleep(1)
+
+
+def main(argv: list[str]) -> int:
+    p = argparse.ArgumentParser(description="Anti-doppioni per gruppi Telegram")
+    p.add_argument("--loop", action="store_true", help="ascolta e cancella (default)")
+    p.add_argument("--stato", action="store_true", help="riepilogo")
+    p.add_argument("--pulisci", action="store_true", help="svuota la memoria dei video visti")
+    a = p.parse_args(argv)
+
+    s = carica()
+    if a.stato:
+        print("doppioni cancellati: {}".format(s["cancellati"]))
+        print("video in memoria: {}".format(len(s["visti"])))
+        print("attivo: {}".format(s["attivo"]))
+        return 0
+    if a.pulisci:
+        s["visti"] = {}
+        controlla_scadenze(s)
+        salva(s)
+        time.sleep(1)
+        print("memoria svuotata")
+        return 0
+    ciclo(s, SECONDI_ASCOLTO)
+    salva(s)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))
