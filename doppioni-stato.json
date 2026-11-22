@@ -1781,13 +1781,7 @@
  },
  "coda_inoltro": [],
  "foto_cancellate": 99,
- "in_attesa": {
-  "8411469252": {
-   "chat": -1003933737714,
-   "t": 1795362037.0,
-   "video": 0
-  }
- },
+ "in_attesa": {},
  "inoltra_a": [
   -1004325315199
  ],
@@ -2248,7 +2242,7 @@
   "minuti": 5,
   "video": 50
  },
- "ultimo_update": 170691679,
+ "ultimo_update": 170691683,
  "visti": {
   "n:07082mp4|392568059|286": {
    "c": -1003933737714,
