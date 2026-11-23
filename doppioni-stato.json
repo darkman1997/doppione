@@ -2044,7 +2044,13 @@
    "il": "2026-11-21"
   }
  },
- "benvenuti_da_cancellare": [],
+ "benvenuti_da_cancellare": [
+  {
+   "chat": -1003933737714,
+   "mid": 6828,
+   "t": 1795434478.968489
+  }
+ ],
  "cancella_foto": true,
  "cancella_servizio": true,
  "cancellati": 334,
@@ -2072,7 +2078,13 @@
   "8411469252": ""
  },
  "foto_cancellate": 168,
- "in_attesa": {},
+ "in_attesa": {
+  "8118319911": {
+   "chat": -1003933737714,
+   "t": 1795434478.0,
+   "video": 0
+  }
+ },
  "inoltra_a": [
   -1004325315199
  ],
@@ -2344,6 +2356,7 @@
   "8085612988": "francesco2382",
   "8097072299": "okyrf",
   "810549713": "juetjyhl",
+  "8118319911": "manumanu0410",
   "8125427603": "",
   "8150574119": "paladindanseee",
   "8169725432": "hammondcode",
@@ -2608,7 +2621,7 @@
   "minuti": 5,
   "video": 300
  },
- "ultimo_update": 170693577,
+ "ultimo_update": 170693578,
  "visti": {
   "n:002ea6b720d22ea6c55c895be47f30896e8dbb56ca5mp4|3935402|50": {
    "c": -1003933737714,
