@@ -2060,7 +2060,13 @@
    "il": "2026-11-21"
   }
  },
- "benvenuti_da_cancellare": [],
+ "benvenuti_da_cancellare": [
+  {
+   "chat": -1003933737714,
+   "mid": 7644,
+   "t": 1795467797.619824
+  }
+ ],
  "cancella_foto": true,
  "cancella_servizio": true,
  "cancellati": 493,
@@ -2091,7 +2097,13 @@
   "8411469252": ""
  },
  "foto_cancellate": 182,
- "in_attesa": {},
+ "in_attesa": {
+  "1238302408": {
+   "chat": -1003933737714,
+   "t": 1795467797.0,
+   "video": 0
+  }
+ },
  "inoltra_a": [
   -1004325315199
  ],
@@ -2116,6 +2128,7 @@
   "1181944670": "sqv0fficial",
   "1188206611": "solarmoonli",
   "1201863514": "",
+  "1238302408": "martino2380",
   "1274438582": "",
   "1281833867": "calabrese9619",
   "1296938690": "xxfasoxx",
@@ -2635,7 +2648,7 @@
   "minuti": 5,
   "video": 300
  },
- "ultimo_update": 170694377,
+ "ultimo_update": 170694378,
  "visti": {
   "n:002ea6b720d22ea6c55c895be47f30896e8dbb56ca5mp4|3935402|50": {
    "c": -1003933737714,
