@@ -2068,7 +2068,13 @@
    "il": "2026-11-21"
   }
  },
- "benvenuti_da_cancellare": [],
+ "benvenuti_da_cancellare": [
+  {
+   "chat": -1003933737714,
+   "mid": 7650,
+   "t": 1795471025.4392023
+  }
+ ],
  "cancella_foto": true,
  "cancella_servizio": true,
  "cancellati": 493,
@@ -2099,7 +2105,13 @@
   "8411469252": ""
  },
  "foto_cancellate": 182,
- "in_attesa": {},
+ "in_attesa": {
+  "439267115": {
+   "chat": -1003933737714,
+   "t": 1795471024.0,
+   "video": 0
+  }
+ },
  "inoltra_a": [
   -1004325315199
  ],
@@ -2189,6 +2201,7 @@
   "383741696": "keijar",
   "412898610": "zamaglia",
   "417286065": "cc12344555",
+  "439267115": "",
   "447719890": "mahsjakc",
   "451663733": "omar_medda",
   "452596242": "boberkurwaax",
@@ -2645,7 +2658,7 @@
   "minuti": 5,
   "video": 300
  },
- "ultimo_update": 170694381,
+ "ultimo_update": 170694382,
  "visti": {
   "n:002ea6b720d22ea6c55c895be47f30896e8dbb56ca5mp4|3935402|50": {
    "c": -1003933737714,
