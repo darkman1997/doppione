@@ -2000,7 +2000,13 @@
    "il": "2026-11-21"
   }
  },
- "benvenuti_da_cancellare": [],
+ "benvenuti_da_cancellare": [
+  {
+   "chat": -1003933737714,
+   "mid": 6455,
+   "t": 1795397635.5897198
+  }
+ ],
  "cancella_foto": true,
  "cancella_servizio": true,
  "cancellati": 265,
@@ -2028,7 +2034,13 @@
   "8411469252": ""
  },
  "foto_cancellate": 165,
- "in_attesa": {},
+ "in_attesa": {
+  "8774511699": {
+   "chat": -1003933737714,
+   "t": 1795397635.0,
+   "video": 0
+  }
+ },
  "inoltra_a": [
   -1004325315199
  ],
@@ -2401,6 +2413,7 @@
   "8766084845": "thousanddaughter",
   "8770114856": "username1278906",
   "8771255721": "",
+  "8774511699": "",
   "8777272656": "jackh46",
   "877888399": "ste_3019",
   "8784377650": "fafalo123",
@@ -2553,7 +2566,7 @@
   "minuti": 5,
   "video": 300
  },
- "ultimo_update": 170693219,
+ "ultimo_update": 170693220,
  "visti": {
   "n:002ea6b720d22ea6c55c895be47f30896e8dbb56ca5mp4|3935402|50": {
    "c": -1003933737714,
