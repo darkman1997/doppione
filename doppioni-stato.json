@@ -2072,7 +2072,13 @@
    "il": "2026-11-21"
   }
  },
- "benvenuti_da_cancellare": [],
+ "benvenuti_da_cancellare": [
+  {
+   "chat": -1003933737714,
+   "mid": 7654,
+   "t": 1795472642.2919106
+  }
+ ],
  "cancella_foto": true,
  "cancella_servizio": true,
  "cancellati": 493,
@@ -2103,7 +2109,13 @@
   "8411469252": ""
  },
  "foto_cancellate": 182,
- "in_attesa": {},
+ "in_attesa": {
+  "5850562933": {
+   "chat": -1003933737714,
+   "t": 1795472641.0,
+   "video": 0
+  }
+ },
  "inoltra_a": [
   -1004325315199
  ],
@@ -2253,6 +2265,7 @@
   "5791770311": "rutin1234",
   "5798379485": "",
   "582884417": "ginozzz",
+  "5850562933": "frances5099",
   "5891347156": "alex233342",
   "5938721543": "a13120o",
   "595049454": "testaanel",
@@ -2650,7 +2663,7 @@
   "minuti": 5,
   "video": 300
  },
- "ultimo_update": 170694384,
+ "ultimo_update": 170694385,
  "visti": {
   "n:002ea6b720d22ea6c55c895be47f30896e8dbb56ca5mp4|3935402|50": {
    "c": -1003933737714,
