@@ -2076,7 +2076,13 @@
    "il": "2026-11-21"
   }
  },
- "benvenuti_da_cancellare": [],
+ "benvenuti_da_cancellare": [
+  {
+   "chat": -1003933737714,
+   "mid": 7657,
+   "t": 1795474753.3875654
+  }
+ ],
  "cancella_foto": true,
  "cancella_servizio": true,
  "cancellati": 493,
@@ -2107,7 +2113,13 @@
   "8411469252": ""
  },
  "foto_cancellate": 182,
- "in_attesa": {},
+ "in_attesa": {
+  "6016474062": {
+   "chat": -1003933737714,
+   "t": 1795474752.0,
+   "video": 0
+  }
+ },
  "inoltra_a": [
   -1004325315199
  ],
@@ -2266,6 +2278,7 @@
   "5998761257": "",
   "600285892": "luca57747",
   "600467421": "fateleg",
+  "6016474062": "mercury981",
   "6056299404": "",
   "6063793822": "l000ca",
   "6064931112": "pessyk",
@@ -2655,7 +2668,7 @@
   "minuti": 5,
   "video": 300
  },
- "ultimo_update": 170694386,
+ "ultimo_update": 170694387,
  "visti": {
   "n:002ea6b720d22ea6c55c895be47f30896e8dbb56ca5mp4|3935402|50": {
    "c": -1003933737714,
