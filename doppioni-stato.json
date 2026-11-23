@@ -2052,7 +2052,13 @@
    "il": "2026-11-21"
   }
  },
- "benvenuti_da_cancellare": [],
+ "benvenuti_da_cancellare": [
+  {
+   "chat": -1003933737714,
+   "mid": 7638,
+   "t": 1795448145.8744605
+  }
+ ],
  "cancella_foto": true,
  "cancella_servizio": true,
  "cancellati": 493,
@@ -2083,7 +2089,13 @@
   "8411469252": ""
  },
  "foto_cancellate": 182,
- "in_attesa": {},
+ "in_attesa": {
+  "7638559522": {
+   "chat": -1003933737714,
+   "t": 1795448145.0,
+   "video": 0
+  }
+ },
  "inoltra_a": [
   -1004325315199
  ],
@@ -2323,6 +2335,7 @@
   "7602245042": "lucaaaa323",
   "7604475768": "zzzkkkzzl",
   "7622578617": "giocatorer",
+  "7638559522": "gio2600",
   "7668274410": "",
   "767242761": "",
   "7684263137": "ak1233i",
@@ -2625,7 +2638,7 @@
   "minuti": 5,
   "video": 300
  },
- "ultimo_update": 170694373,
+ "ultimo_update": 170694374,
  "visti": {
   "n:002ea6b720d22ea6c55c895be47f30896e8dbb56ca5mp4|3935402|50": {
    "c": -1003933737714,
