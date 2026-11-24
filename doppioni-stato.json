@@ -2148,7 +2148,13 @@
    "il": "2026-11-21"
   }
  },
- "benvenuti_da_cancellare": [],
+ "benvenuti_da_cancellare": [
+  {
+   "chat": -1003933737714,
+   "mid": 8523,
+   "t": 1795533044.7310166
+  }
+ ],
  "cancella_foto": true,
  "cancella_servizio": true,
  "cancellati": 603,
@@ -2184,7 +2190,13 @@
   "8411469252": ""
  },
  "foto_cancellate": 184,
- "in_attesa": {},
+ "in_attesa": {
+  "772533812": {
+   "chat": -1003933737714,
+   "t": 1795533044.0,
+   "video": 0
+  }
+ },
  "inoltra_a": [
   -1004325315199
  ],
@@ -2450,6 +2462,7 @@
   "7711670778": "nuvolare",
   "771948537": "francesco200491",
   "7721987343": "ale0020",
+  "772533812": "pedrosan9",
   "774048282": "maicolsa",
   "775433775": "",
   "777813901": "",
@@ -2749,7 +2762,7 @@
   "minuti": 5,
   "video": 300
  },
- "ultimo_update": 170695226,
+ "ultimo_update": 170695227,
  "visti": {
   "n:002ea6b720d22ea6c55c895be47f30896e8dbb56ca5mp4|3935402|50": {
    "c": -1003933737714,
