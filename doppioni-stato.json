@@ -2164,7 +2164,13 @@
    "il": "2026-11-21"
   }
  },
- "benvenuti_da_cancellare": [],
+ "benvenuti_da_cancellare": [
+  {
+   "chat": -1003933737714,
+   "mid": 8534,
+   "t": 1795562834.7785053
+  }
+ ],
  "cancella_foto": true,
  "cancella_servizio": true,
  "cancellati": 603,
@@ -2200,7 +2206,13 @@
   "8411469252": ""
  },
  "foto_cancellate": 184,
- "in_attesa": {},
+ "in_attesa": {
+  "344959069": {
+   "chat": -1003933737714,
+   "t": 1795562834.0,
+   "video": 0
+  }
+ },
  "inoltra_a": [
   -1004325315199
  ],
@@ -2291,6 +2303,7 @@
   "278629073": "gggj5656",
   "314312223": "jhonny4321",
   "339340005": "iorenzo71",
+  "344959069": "quaaluden",
   "357357631": "harleyd75",
   "36030383": "ilpred16",
   "383741696": "keijar",
@@ -2769,7 +2782,7 @@
   "minuti": 5,
   "video": 300
  },
- "ultimo_update": 170695234,
+ "ultimo_update": 170695235,
  "visti": {
   "n:002ea6b720d22ea6c55c895be47f30896e8dbb56ca5mp4|3935402|50": {
    "c": -1003933737714,
