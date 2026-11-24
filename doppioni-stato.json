@@ -2120,7 +2120,13 @@
    "il": "2026-11-21"
   }
  },
- "benvenuti_da_cancellare": [],
+ "benvenuti_da_cancellare": [
+  {
+   "chat": -1003933737714,
+   "mid": 7990,
+   "t": 1795524062.139953
+  }
+ ],
  "cancella_foto": true,
  "cancella_servizio": true,
  "cancellati": 503,
@@ -2137,6 +2143,10 @@
    "tipo": "group",
    "titolo": "Mio"
   },
+  "8613675226": {
+   "tipo": "private",
+   "titolo": "Ivan23"
+  },
   "8798296477": {
    "tipo": "private",
    "titolo": "Dark"
@@ -2151,7 +2161,13 @@
   "8411469252": ""
  },
  "foto_cancellate": 184,
- "in_attesa": {},
+ "in_attesa": {
+  "8613675226": {
+   "chat": -1003933737714,
+   "t": 1795524061.0,
+   "video": 0
+  }
+ },
  "inoltra_a": [
   -1004325315199
  ],
@@ -2518,6 +2534,7 @@
   "8596272156": "",
   "8603392937": "",
   "8609819752": "",
+  "8613675226": "ivannnnnnnnnnnbbb",
   "8614527595": "beniu3",
   "8614703339": "",
   "8616443576": "",
@@ -2708,7 +2725,7 @@
   "minuti": 5,
   "video": 300
  },
- "ultimo_update": 170694706,
+ "ultimo_update": 170694709,
  "visti": {
   "n:002ea6b720d22ea6c55c895be47f30896e8dbb56ca5mp4|3935402|50": {
    "c": -1003933737714,
