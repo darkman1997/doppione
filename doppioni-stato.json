@@ -2160,7 +2160,13 @@
    "il": "2026-11-21"
   }
  },
- "benvenuti_da_cancellare": [],
+ "benvenuti_da_cancellare": [
+  {
+   "chat": -1003933737714,
+   "mid": 8531,
+   "t": 1795539895.446476
+  }
+ ],
  "cancella_foto": true,
  "cancella_servizio": true,
  "cancellati": 603,
@@ -2196,7 +2202,13 @@
   "8411469252": ""
  },
  "foto_cancellate": 184,
- "in_attesa": {},
+ "in_attesa": {
+  "1017797073": {
+   "chat": -1003933737714,
+   "t": 1795539894.0,
+   "video": 0
+  }
+ },
  "inoltra_a": [
   -1004325315199
  ],
@@ -2205,6 +2217,7 @@
   "1013697563": "",
   "1013741467": "chianti1988",
   "1014816012": "alex10124",
+  "1017797073": "antonio9219",
   "1019334532": "trrrrrre8",
   "1046709850": "sierra_di",
   "1050779790": "crazyjolly",
@@ -2764,7 +2777,7 @@
   "minuti": 5,
   "video": 300
  },
- "ultimo_update": 170695232,
+ "ultimo_update": 170695233,
  "visti": {
   "n:002ea6b720d22ea6c55c895be47f30896e8dbb56ca5mp4|3935402|50": {
    "c": -1003933737714,
