@@ -2180,7 +2180,13 @@
    "il": "2026-11-21"
   }
  },
- "benvenuti_da_cancellare": [],
+ "benvenuti_da_cancellare": [
+  {
+   "chat": -1003933737714,
+   "mid": 9935,
+   "t": 1795639262.026302
+  }
+ ],
  "cancella_foto": true,
  "cancella_servizio": true,
  "cancellati": 651,
@@ -2217,7 +2223,18 @@
   "8411469252": ""
  },
  "foto_cancellate": 233,
- "in_attesa": {},
+ "in_attesa": {
+  "931496429": {
+   "chat": -1003933737714,
+   "t": 1795639261.0,
+   "u": {
+    "first_name": "Dalog",
+    "id": 931496429,
+    "username": "disuguaglianzamentale"
+   },
+   "video": 0
+  }
+ },
  "inoltra_a": [
   -1004325315199
  ],
@@ -2779,6 +2796,7 @@
   "92872462": "",
   "9289468618": "",
   "929649861": "lele80lele",
+  "931496429": "disuguaglianzamentale",
   "940369387": "diechancellor",
   "94328251": "tardigradoo",
   "947719711": "pepsi23k",
@@ -2793,7 +2811,7 @@
   "minuti": 5,
   "video": 500
  },
- "ultimo_update": 170696624,
+ "ultimo_update": 170696625,
  "video_pregressi": {},
  "visti": {
   "n:000374mp4|16482485|15": {
