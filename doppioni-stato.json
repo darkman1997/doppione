@@ -2143,6 +2143,11 @@
    "chat": -1003933737714,
    "il": "2026-11-18"
   },
+  "931496429": {
+   "chat": -1003933737714,
+   "il": "2026-11-25",
+   "video": 0
+  },
   "940369387": {
    "chat": -1003933737714,
    "il": "2026-11-18"
@@ -2180,13 +2185,7 @@
    "il": "2026-11-21"
   }
  },
- "benvenuti_da_cancellare": [
-  {
-   "chat": -1003933737714,
-   "mid": 9935,
-   "t": 1795639262.026302
-  }
- ],
+ "benvenuti_da_cancellare": [],
  "cancella_foto": true,
  "cancella_servizio": true,
  "cancellati": 651,
@@ -2223,18 +2222,7 @@
   "8411469252": ""
  },
  "foto_cancellate": 233,
- "in_attesa": {
-  "931496429": {
-   "chat": -1003933737714,
-   "t": 1795639261.0,
-   "u": {
-    "first_name": "Dalog",
-    "id": 931496429,
-    "username": "disuguaglianzamentale"
-   },
-   "video": 0
-  }
- },
+ "in_attesa": {},
  "inoltra_a": [
   -1004325315199
  ],
@@ -2811,7 +2799,7 @@
   "minuti": 5,
   "video": 500
  },
- "ultimo_update": 170696625,
+ "ultimo_update": 170696626,
  "video_pregressi": {},
  "visti": {
   "n:000374mp4|16482485|15": {
