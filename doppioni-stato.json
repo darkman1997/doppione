@@ -2190,7 +2190,13 @@
    "il": "2026-11-21"
   }
  },
- "benvenuti_da_cancellare": [],
+ "benvenuti_da_cancellare": [
+  {
+   "chat": -1003933737714,
+   "mid": 9941,
+   "t": 1795644248.989216
+  }
+ ],
  "cancella_foto": true,
  "cancella_servizio": true,
  "cancellati": 651,
@@ -2227,7 +2233,18 @@
   "8411469252": ""
  },
  "foto_cancellate": 233,
- "in_attesa": {},
+ "in_attesa": {
+  "9214872796": {
+   "chat": -1003933737714,
+   "t": 1795644248.0,
+   "u": {
+    "first_name": "Giuseppe",
+    "id": 9214872796,
+    "username": null
+   },
+   "video": 0
+  }
+ },
  "inoltra_a": [
   -1004325315199
  ],
@@ -2775,6 +2792,7 @@
   "9210388582": "",
   "921070792": "antony9921",
   "9214080401": "",
+  "9214872796": "",
   "9218439100": "",
   "9222845867": "",
   "9235841311": "",
@@ -2805,7 +2823,7 @@
   "minuti": 5,
   "video": 500
  },
- "ultimo_update": 170696628,
+ "ultimo_update": 170696629,
  "video_pregressi": {},
  "visti": {
   "n:000374mp4|16482485|15": {
