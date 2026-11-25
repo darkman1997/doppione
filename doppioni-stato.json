@@ -2195,7 +2195,13 @@
    "il": "2026-11-21"
   }
  },
- "benvenuti_da_cancellare": [],
+ "benvenuti_da_cancellare": [
+  {
+   "chat": -1003933737714,
+   "mid": 9944,
+   "t": 1795648944.1747925
+  }
+ ],
  "cancella_foto": true,
  "cancella_servizio": true,
  "cancellati": 651,
@@ -2232,7 +2238,18 @@
   "8411469252": ""
  },
  "foto_cancellate": 233,
- "in_attesa": {},
+ "in_attesa": {
+  "771088211": {
+   "chat": -1003933737714,
+   "t": 1795648943.0,
+   "u": {
+    "first_name": "Peppino",
+    "id": 771088211,
+    "username": "peppino2210"
+   },
+   "video": 0
+  }
+ },
  "inoltra_a": [
   -1004325315199
  ],
@@ -2500,6 +2517,7 @@
   "769065123": "alessiooooooo19",
   "7697182222": "",
   "7707300369": "gabr0000000",
+  "771088211": "peppino2210",
   "7711670778": "nuvolare",
   "771948537": "francesco200491",
   "7721987343": "ale0020",
@@ -2811,7 +2829,7 @@
   "minuti": 5,
   "video": 500
  },
- "ultimo_update": 170696630,
+ "ultimo_update": 170696631,
  "video_pregressi": {},
  "visti": {
   "n:000374mp4|16482485|15": {
