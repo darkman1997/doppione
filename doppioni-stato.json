@@ -2172,7 +2172,13 @@
    "il": "2026-11-21"
   }
  },
- "benvenuti_da_cancellare": [],
+ "benvenuti_da_cancellare": [
+  {
+   "chat": -1003933737714,
+   "mid": 8569,
+   "t": 1795603463.7347696
+  }
+ ],
  "cancella_foto": true,
  "cancella_servizio": true,
  "cancellati": 603,
@@ -2208,7 +2214,13 @@
   "8411469252": ""
  },
  "foto_cancellate": 184,
- "in_attesa": {},
+ "in_attesa": {
+  "6467013116": {
+   "chat": -1003933737714,
+   "t": 1795603463.0,
+   "video": 0
+  }
+ },
  "inoltra_a": [
   -1004325315199
  ],
@@ -2402,6 +2414,7 @@
   "6428665439": "ggvita10",
   "644897834": "anonymus006",
   "6456411236": "apobagxx",
+  "6467013116": "dyllix0",
   "6493604188": "jargbh",
   "649441996": "",
   "6561605371": "",
@@ -2779,7 +2792,7 @@
   "minuti": 5,
   "video": 300
  },
- "ultimo_update": 170695267,
+ "ultimo_update": 170695268,
  "visti": {
   "n:002ea6b720d22ea6c55c895be47f30896e8dbb56ca5mp4|3935402|50": {
    "c": -1003933737714,
