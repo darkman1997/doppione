@@ -328,6 +328,11 @@
    "chat": -1003933737714,
    "il": "2026-11-18"
   },
+  "315524392": {
+   "chat": -1003933737714,
+   "il": "2026-11-26",
+   "video": 0
+  },
   "339340005": {
    "chat": -1003933737714,
    "il": "2026-11-21"
@@ -2225,7 +2230,13 @@
    "il": "2026-11-21"
   }
  },
- "benvenuti_da_cancellare": [],
+ "benvenuti_da_cancellare": [
+  {
+   "chat": -1003933737714,
+   "mid": 10559,
+   "t": 1795733453.018928
+  }
+ ],
  "cancella_foto": true,
  "cancella_servizio": true,
  "cancellati": 742,
@@ -6622,6 +6633,7 @@
   "255892307": "eccofl",
   "278629073": "gggj5656",
   "314312223": "jhonny4321",
+  "315524392": "pincopallo1234567",
   "339340005": "iorenzo71",
   "344959069": "quaaluden",
   "357357631": "harleyd75",
@@ -7114,7 +7126,7 @@
   "minuti": 5,
   "video": 500
  },
- "ultimo_update": 170697239,
+ "ultimo_update": 170697241,
  "video_pregressi": {},
  "visti": {
   "d:100057104|92|720x1280": {
