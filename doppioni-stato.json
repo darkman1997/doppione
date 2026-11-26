@@ -1185,6 +1185,11 @@
    "chat": -1003933737714,
    "il": "2026-11-20"
   },
+  "8210073768": {
+   "chat": -1003933737714,
+   "il": "2026-11-26",
+   "video": 0
+  },
   "8218778982": {
    "chat": -1003933737714,
    "il": "2026-11-18"
@@ -2210,13 +2215,7 @@
    "il": "2026-11-21"
   }
  },
- "benvenuti_da_cancellare": [
-  {
-   "chat": -1003933737714,
-   "mid": 10550,
-   "t": 1795711405.8740654
-  }
- ],
+ "benvenuti_da_cancellare": [],
  "cancella_foto": true,
  "cancella_servizio": true,
  "cancellati": 742,
@@ -2253,18 +2252,7 @@
   "8411469252": ""
  },
  "foto_cancellate": 233,
- "in_attesa": {
-  "8210073768": {
-   "chat": -1003933737714,
-   "t": 1795711403.0,
-   "u": {
-    "first_name": "Vhbhunbvf",
-    "id": 8210073768,
-    "username": "giorgiooooo0"
-   },
-   "video": 0
-  }
- },
+ "in_attesa": {},
  "inoltra_a": [
   -1004325315199
  ],
@@ -6155,7 +6143,7 @@
   "minuti": 5,
   "video": 500
  },
- "ultimo_update": 170697234,
+ "ultimo_update": 170697235,
  "video_pregressi": {},
  "visti": {
   "d:100057104|92|720x1280": {
