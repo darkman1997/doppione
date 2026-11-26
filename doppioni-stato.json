@@ -2220,7 +2220,13 @@
    "il": "2026-11-21"
   }
  },
- "benvenuti_da_cancellare": [],
+ "benvenuti_da_cancellare": [
+  {
+   "chat": -1003933737714,
+   "mid": 10556,
+   "t": 1795732637.400417
+  }
+ ],
  "cancella_foto": true,
  "cancella_servizio": true,
  "cancellati": 742,
@@ -2257,7 +2263,18 @@
   "8411469252": ""
  },
  "foto_cancellate": 233,
- "in_attesa": {},
+ "in_attesa": {
+  "5259575004": {
+   "chat": -1003933737714,
+   "t": 1795732636.0,
+   "u": {
+    "first_name": "Simone",
+    "id": 5259575004,
+    "username": "Anonimus111988"
+   },
+   "video": 0
+  }
+ },
  "inoltra_a": [
   -1004325315199
  ],
@@ -6655,6 +6672,7 @@
   "5200368517": "f6l84",
   "523377517": "sgarz5",
   "5234870993": "baronsamedi1987",
+  "5259575004": "anonimus111988",
   "5265771756": "ayoub4093",
   "5286985742": "",
   "5287309562": "forzaroma192",
@@ -7108,7 +7126,7 @@
   "minuti": 5,
   "video": 500
  },
- "ultimo_update": 170697237,
+ "ultimo_update": 170697238,
  "video_pregressi": {},
  "visti": {
   "d:100057104|92|720x1280": {
