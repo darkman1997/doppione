@@ -83,6 +83,11 @@
    "chat": -1003933737714,
    "il": "2026-11-22"
   },
+  "117193131": {
+   "chat": -1003933737714,
+   "il": "2026-11-26",
+   "video": 0
+  },
   "1175955104": {
    "chat": -1003933737714,
    "il": "2026-11-22"
@@ -2215,13 +2220,7 @@
    "il": "2026-11-21"
   }
  },
- "benvenuti_da_cancellare": [
-  {
-   "chat": -1003933737714,
-   "mid": 10553,
-   "t": 1795717603.3578014
-  }
- ],
+ "benvenuti_da_cancellare": [],
  "cancella_foto": true,
  "cancella_servizio": true,
  "cancellati": 742,
@@ -2258,18 +2257,7 @@
   "8411469252": ""
  },
  "foto_cancellate": 233,
- "in_attesa": {
-  "117193131": {
-   "chat": -1003933737714,
-   "t": 1795717602.0,
-   "u": {
-    "first_name": "𝕸𝖆𝖗𝖎𝖔⚡",
-    "id": 117193131,
-    "username": "kefeloz"
-   },
-   "video": 0
-  }
- },
+ "in_attesa": {},
  "inoltra_a": [
   -1004325315199
  ],
@@ -6161,7 +6149,7 @@
   "minuti": 5,
   "video": 500
  },
- "ultimo_update": 170697236,
+ "ultimo_update": 170697237,
  "video_pregressi": {},
  "visti": {
   "d:100057104|92|720x1280": {
