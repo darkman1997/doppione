@@ -2200,7 +2200,13 @@
    "il": "2026-11-21"
   }
  },
- "benvenuti_da_cancellare": [],
+ "benvenuti_da_cancellare": [
+  {
+   "chat": -1003933737714,
+   "mid": 10544,
+   "t": 1795675363.1110058
+  }
+ ],
  "cancella_foto": true,
  "cancella_servizio": true,
  "cancellati": 742,
@@ -2237,7 +2243,18 @@
   "8411469252": ""
  },
  "foto_cancellate": 233,
- "in_attesa": {},
+ "in_attesa": {
+  "5422868359": {
+   "chat": -1003933737714,
+   "t": 1795675362.0,
+   "u": {
+    "first_name": "Rocco",
+    "id": 5422868359,
+    "username": "speedy1980"
+   },
+   "video": 0
+  }
+ },
  "inoltra_a": [
   -1004325315199
  ],
@@ -5684,6 +5701,7 @@
   "5379060847": "benny_blanco_17",
   "53857595": "",
   "5421177143": "bleeahh",
+  "5422868359": "speedy1980",
   "5435695135": "",
   "5503266185": "cuba1708",
   "550423942": "bp995",
@@ -6125,7 +6143,7 @@
   "minuti": 5,
   "video": 500
  },
- "ultimo_update": 170697229,
+ "ultimo_update": 170697230,
  "video_pregressi": {},
  "visti": {
   "d:100057104|92|720x1280": {
