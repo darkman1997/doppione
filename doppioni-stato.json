@@ -2230,13 +2230,7 @@
    "il": "2026-11-21"
   }
  },
- "benvenuti_da_cancellare": [
-  {
-   "chat": -1003933737714,
-   "mid": 10559,
-   "t": 1795733453.018928
-  }
- ],
+ "benvenuti_da_cancellare": [],
  "cancella_foto": true,
  "cancella_servizio": true,
  "cancellati": 742,
